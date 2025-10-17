@@ -6,7 +6,7 @@ import pino from 'pino-http';
 import 'dotenv/config';
 
 const app = express();
-const PORT = process.env.PORT ?? 3000;
+const PORT = process.env.PORT ?? 3030;
 
 
 app.use(express.json());
@@ -31,12 +31,6 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-// Логування часу
-app.use((req, res, next) => {
-  console.log(`Time: ${new Date().toLocaleString()}`);
-  next();
-});
-
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello, World!' });
 });
@@ -46,7 +40,8 @@ app.get('/notes', (req, res) => {
 });
 
 app.get('/notes/:noteId', (req, res) => {
-  res.status(200).json({ message: 'Retrieved note with ID: id_param' });
+  const { noteId } = req.params;
+  res.status(200).json({ message: `Retrieved note with ID: ${noteId}` });
 });
 
 // Маршрут для тестування middleware помилки
@@ -67,17 +62,4 @@ app.use((err, req, res, next) => {
     message: 'Internal Server Error',
     error: err.message,
  });
-});
-
-// Middleware для обробки помилок
-app.use((err, req, res, next) => {
-  console.error(err);
-
-  const isProd = process.env.NODE_ENV === "production";
-
-  res.status(500).json({
-    message: isProd
-      ? "Something went wrong. Please try again later."
-      : err.message,
-  });
 });
