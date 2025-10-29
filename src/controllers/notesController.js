@@ -3,42 +3,45 @@ import { Note } from "../models/note.js";
 
 // Усі нотатки
 export const getAllNotes = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      perPage = 10,
+      tag,
+      search
+    } = req.query;
 
-  const {
-    page = 1,
-    perPage = 10,
-    tag,
-    search
-  } = req.query;
+    const pageNum = Number(page);
+    const perPageNum = Number(perPage);
+    const skip = (pageNum - 1) * perPageNum;
 
-  const skip = (page - 1) * perPage;
-  const notesQuery = Note.find();
+    const notesQuery = Note.find();
 
-   if (tag) {
-    notesQuery.where("tag").equals(tag);
-  }
-  if (search) {
-    notesQuery.where({
-      $text: { $search: search },
+    if (tag) {
+      notesQuery.where("tag").equals(tag);
+    }
+
+    if (search) {
+      notesQuery.where({ $text: { $search: search } });
+    }
+
+    const [totalNotes, notes] = await Promise.all([
+      notesQuery.clone().countDocuments(),
+      notesQuery.skip(skip).limit(perPageNum).exec(),
+    ]);
+
+    const totalPages = Math.ceil(totalNotes / perPageNum);
+
+    res.status(200).json({
+      page: pageNum,
+      perPage: perPageNum,
+      totalNotes,
+      totalPages,
+      notes,
     });
+  } catch (err) {
+    next(createHttpError(500, err.message));
   }
-
-
-const [totalNotes, notes] = await Promise.all([
-   notesQuery.clone().countDocuments(),
-    notesQuery.skip(skip).limit(perPage),
-]);
-
-  const totalPages = Math.ceil(totalNotes / perPage);
-
-res.status(200).json({
-  page,
-  perPage,
-  totalNotes,
-  totalPages,
-  notes,
-  });
-
 };
 
 // Нотакти по ID
