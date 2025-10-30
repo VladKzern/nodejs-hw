@@ -42,55 +42,40 @@ export const getAllNotes = async (req, res, next) => {
 
 // Нотакти по ID
 export const getNoteById = async (req, res, next) => {
-  try {
-    const { noteId } = req.params;
-    const note = await Note.findById(noteId);
-    if (!note) {
-      return next(createHttpError(404, "Note not found"));
-    }
-    res.status(200).json(note);
-  } catch (err) {
-    next(createHttpError(500, err.message));
+  const { noteId } = req.params;
+  const note = await Note.findById(noteId);
+  if (!note) {
+    return next(createHttpError(404, "Note not found"));
   }
+  res.status(200).json(note);
+
 };
 
 
 // Створення нотатки
 export const createNote = async (req, res, next) => {
-  try {
-    const note = await Note.create(req.body);
-    res.status(201).json(note);
-  } catch (err) {
-    next(createHttpError(500, err.message));
-  }
+  const note = await Note.create(req.body);
+  res.status(201).json(note);
 };
 
 // Оновлення info про нотатку
 export const updateNote = async (req, res, next) => {
-  try {
-    const { noteId } = req.params;
-    const note = await Note.findOneAndUpdate({ _id: noteId }, req.body, {
-      new: true,
-    });
-    if (!note) {
-      return next(createHttpError(404, "Note not found"));
-    }
-    res.status(200).json(note);
-  } catch (err) {
-    next(createHttpError(500, err.message));
+  const { noteId } = req.params;
+  const note = await Note.findOneAndUpdate({ _id: noteId }, req.body, {
+    new: true,
+  });
+  if (!note) {
+    return next(createHttpError(404, "Note not found"));
   }
+  res.status(200).json(note);
 };
 
 // Видалення нотатки
 export const deleteNote = async (req, res, next) => {
-  try {
-    const { noteId } = req.params;
-    const note = await Note.findOneAndDelete({ _id: noteId });
-    if (!note) {
-      return next(createHttpError(404, "Note not found"));
-    }
-    res.status(200).json(note);
-  } catch (err) {
-    next(createHttpError(500, err.message));
+  const { noteId } = req.params;
+  const note = await Note.findOneAndDelete({ _id: noteId });
+  if (!note) {
+    return next(createHttpError(404, "Note not found"));
   }
+  res.status(200).json(note);
 };
